@@ -1,0 +1,23 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="mx-auto" style="width: 200px;">
+    <div class="col-12 mb-5">
+        <a class="btn btn-outline-dark" href="{% url 'mailing:client_create' %}">Создать клиента</a>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-6 mb-6 text-center">
+    {% for object in object_list %}
+    {% include 'mailing/includes/inc_client_card.html' %}
+            <div class="card-footer">
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'mailing:client_detail' object.pk %}">Открыть</a>
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'mailing:client_update' object.pk %}">Изменить</a>
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'mailing:client_delete' object.pk %}">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endblock %}

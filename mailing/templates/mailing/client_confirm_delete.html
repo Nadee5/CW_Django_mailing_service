@@ -1,0 +1,15 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-12 mb-12 text-center">
+    {% include 'mailing/includes/inc_client_card.html' %}
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <p class="fw-bold text-danger">Хотите удалить клиента "{{ object }}" ?</p>
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <a href="{% url 'mailing:client_list' %}" class="btn btn-success">Отмена</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

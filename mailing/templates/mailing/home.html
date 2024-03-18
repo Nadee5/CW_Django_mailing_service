@@ -1,0 +1,19 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+    {% include 'mailing/includes/inc_carousel.html' %}
+
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+    <div class="container marketing">
+        <!-- Three columns of text below the carousel -->
+        {% include 'mailing/includes/inc_marketing_round_labels.html' %}
+
+        <!-- START THE FEATURETTES -->
+        {% include 'mailing/includes/inc_news_index.html' %}
+        <!-- /END THE FEATURETTES -->
+
+    </div><!-- /.container -->
+{% endblock %}

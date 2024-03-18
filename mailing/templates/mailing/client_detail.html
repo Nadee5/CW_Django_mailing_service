@@ -1,0 +1,15 @@
+{%  extends 'mailing/base.html'%}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-12 mb-12 text-center">
+    {% include 'mailing/includes/inc_client_card.html' %}
+            <div class="card-footer">
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'mailing:client_update' object.pk %}">Изменить</a>
+                    <a class="btn btn-sm btn-outline-danger"
+                       href="{% url 'mailing:client_delete' object.pk %}">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
