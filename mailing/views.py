@@ -4,15 +4,25 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView
+from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView, TemplateView
 
+from blog.models import Blog
 from mailing.forms import ClientForm, MailingForm, MessageForm
 from mailing.models import Client, Mailing, Message, Logs
-from pytils.translit import slugify
 
 
-def home(request):
-    return render(request, 'mailing/home.html')
+class HomePageView(TemplateView):
+    """Отображение домашней страницы"""
+    template_name = 'mailing/home.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['mailing_count'] = Mailing.objects.all().count()
+        context_data['active_mailing_count'] = Mailing.objects.filter(is_active=True,).count()
+        context_data['clients_count'] = Client.objects.all().distinct().count()
+        context_data['three_posts'] = Blog.objects.all()[:3]
+
+        return context_data
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -20,15 +30,21 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
     form_class = ClientForm
     success_url = reverse_lazy('mailing:client_list')
 
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.owner = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+
 
 class ClientDetailView(LoginRequiredMixin, DetailView):
     model = Client
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
@@ -38,9 +54,9 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
@@ -49,9 +65,9 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class ClientListView(LoginRequiredMixin, ListView):
@@ -69,15 +85,21 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
 
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.owner = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+
 
 class MailingDetailView(LoginRequiredMixin, DetailView):
     model = Mailing
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class MailingUpdateView(LoginRequiredMixin, UpdateView):
@@ -87,9 +109,9 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class MailingDeleteView(LoginRequiredMixin, DeleteView):
@@ -98,9 +120,9 @@ class MailingDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class MailingListView(LoginRequiredMixin, ListView):
@@ -118,6 +140,12 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
     form_class = MessageForm
     success_url = reverse_lazy('mailing:message_list')
 
+    def form_valid(self, form):
+        self.object = form.save()
+        self.object.owner = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+
 
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
@@ -126,9 +154,9 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
@@ -137,9 +165,9 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user:
-            raise Http404
-        return self.object
+        if self.request.user.is_superuser or self.object.owner == self.request.user:
+            return self.object
+        raise Http404
 
 
 class MessageListView(LoginRequiredMixin, ListView):
@@ -162,6 +190,7 @@ class LogsListView(LoginRequiredMixin, ListView):
         context_data['success'] = context_data['object_list'].filter(attempt_status=True).count()
         context_data['error'] = context_data['object_list'].filter(attempt_status=False).count()
         return context_data
+
 
 @login_required
 def active_toggle(request, pk):
