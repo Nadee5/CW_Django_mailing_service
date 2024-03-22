@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.db import models
 
 NULLABLE = {'blank': True, 'null': True}
@@ -12,6 +13,8 @@ class Client(models.Model):
     surname = models.CharField(max_length=100, **NULLABLE, verbose_name='Отчество')
     email = models.EmailField(unique=True, verbose_name='Почта')
     comment = models.TextField(**NULLABLE, verbose_name='Комментарий')
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, verbose_name='Владелец', **NULLABLE)
 
     def __str__(self):
         return f'{self.last_name} {self.first_name} ({self.email})'
@@ -26,6 +29,8 @@ class Message(models.Model):
     """Сообщение рассылки"""
     title = models.CharField(max_length=150, default='Без темы', verbose_name='Тема письма')
     text_body = models.TextField(**NULLABLE, verbose_name='Содержание')
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, verbose_name='Владелец', **NULLABLE)
 
     def __str__(self):
         return self.title
@@ -61,6 +66,8 @@ class Mailing(models.Model):
     client = models.ManyToManyField(Client, verbose_name='Получатели')
     message = models.ForeignKey(Message, on_delete=models.PROTECT, verbose_name='Сообщение')
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, verbose_name='Владелец', **NULLABLE)
+
     is_active = models.BooleanField(default=True, verbose_name='Активная')
 
     def __str__(self):
@@ -70,6 +77,9 @@ class Mailing(models.Model):
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
         ordering = ('status',)
+        permissions = [
+            ('set_is_active', 'Изменить активность рассылки'),
+        ]
 
 
 class Logs(models.Model):
