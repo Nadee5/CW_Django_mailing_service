@@ -1,0 +1,28 @@
+{%  extends 'mailing/base.html'%}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-12 mb-12 text-center">
+    <div class="col-4">
+        <div class="card mb-4 rounded-3 shadow-sm">
+            <div class="card-header py-3">
+                <h4 class="my-0 fw-normal">Рассылка {{ object.title }}</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mt-3 mb-4">
+                    <li>Название: {{ object.title }}</li>
+                    <li>Время рассылки: {{ object.date_start }} - {{ object.date_stop }}</li>
+                    <li>Периодичность: {{ object.period }}</li>
+                    <li>Статус: {{ object.status }}</li>
+                    <li>Сообщение: {{ object.message }}</li>
+                    <li>Получатели: {{ object.clients }}</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'mailing:mailing_update' object.pk %}">Изменить</a>
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'mailing:mailing_delete' object.pk %}">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
